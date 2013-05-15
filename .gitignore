@@ -1,0 +1,9 @@
+.classpath
+.project
+.settings
+target
+rebel.xml
+*.sh
+.idea/*
+*.iml
+faces-config.pageflow

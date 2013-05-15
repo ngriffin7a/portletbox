@@ -1,0 +1,29 @@
+LIFERAY:
+
+1. When invoking the ACTION_PHASE:
+
+--------------------------------------------------------------------------------
+portletPhase=[ACTION_PHASE] mapName=[publicParameterMap] key=[publicRenderParameter1] values[0]=[1]
+--------------------------------------------------------------------------------
+portletPhase=[ACTION_PHASE] mapName=[privateParameterMap] key=[actionURLParameter1] values[0]=[1]
+portletPhase=[ACTION_PHASE] mapName=[privateParameterMap] key=[formParameter1] values[0]=[1]
+
+--------------------------------------------------------------------------------
+portletPhase=[ACTION_PHASE] mapName=[parameterMap] key=[formParameter1] values[0]=[1]
+portletPhase=[ACTION_PHASE] mapName=[parameterMap] key=[actionURLParameter1] values[0]=[1]
+portletPhase=[ACTION_PHASE] mapName=[parameterMap] key=[publicRenderParameter1] values[0]=[1]
+
+portletPhase=[RENDER_PHASE] mapName=[publicParameterMap] key=[publicRenderParameter1] values[0]=[1]
+portletPhase=[RENDER_PHASE] mapName=[privateParameterMap] key=[privateRenderParameter1] values[0]=[1]
+portletPhase=[RENDER_PHASE] mapName=[parameterMap] key=[publicRenderParameter1] values[0]=[1]
+portletPhase=[RENDER_PHASE] mapName=[parameterMap] key=[privateRenderParameter1] values[0]=[1]
+
+2. When invoking the RESOURCE_PHASE:
+
+portletPhase=[RESOURCE_PHASE] mapName=[publicParameterMap] key=[publicRenderParameter1] values[0]=[1]
+portletPhase=[RESOURCE_PHASE] mapName=[privateParameterMap] key=[formParameter1] values[0]=[1]
+portletPhase=[RESOURCE_PHASE] mapName=[privateParameterMap] key=[resourceURLParameter1] values[0]=[1]
+
+portletPhase=[RESOURCE_PHASE] mapName=[parameterMap] key=[formParameter1] values[0]=[1]
+portletPhase=[RESOURCE_PHASE] mapName=[parameterMap] key=[resourceURLParameter1] values[0]=[1]
+portletPhase=[RESOURCE_PHASE] mapName=[parameterMap] key=[publicRenderParameter1] values[0]=[1]
