@@ -21,4 +21,12 @@
 		<module>PORTLETSPEC3-10-portlet</module>
 		<module>PORTLETSPEC3-14-portlet</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>liferay</id>
+			<modules>
+				<module>issues-hook</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>
