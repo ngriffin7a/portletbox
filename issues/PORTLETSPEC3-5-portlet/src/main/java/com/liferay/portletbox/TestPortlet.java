@@ -42,11 +42,15 @@ public class TestPortlet extends GenericPortlet {
 	public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException,
 		IOException {
 
-		actionResponse.setRenderParameter("publicRenderParameter1", "1");
-		actionResponse.setRenderParameter("privateRenderParameter1", "1");
+		actionResponse.setRenderParameter("publicRenderParameter1", "actionResponse");
+		actionResponse.setRenderParameter("privateRenderParameter1", "actionResponse");
 
 		Writer writer = new ConsoleHTMLWriter();
+
 		writer.write(HTMLUtil.HR_TAG);
+		writer.write("Phase: " + PortletRequest.ACTION_PHASE);
+		writer.write(HTMLUtil.BR_TAG);
+
 		HTMLUtil.writeMap(writer, PortletRequest.ACTION_PHASE, "publicParameterMap",
 			actionRequest.getPublicParameterMap());
 		writer.write(HTMLUtil.HR_TAG);
@@ -63,8 +67,12 @@ public class TestPortlet extends GenericPortlet {
 		resourceResponse.setContentType("text/html");
 
 		Writer writer = resourceResponse.getWriter();
+
 		resourceRequest.getPrivateParameterMap();
 		writer.write("<html><body>");
+		writer.write("Phase: " + PortletRequest.RESOURCE_PHASE);
+		writer.write(HTMLUtil.BR_TAG);
+
 		HTMLUtil.writeMap(writer, PortletRequest.RESOURCE_PHASE, "publicParameterMap",
 			resourceRequest.getPublicParameterMap());
 		writer.write(HTMLUtil.HR_TAG);
@@ -86,6 +94,9 @@ public class TestPortlet extends GenericPortlet {
 			writer.write(HTMLUtil.HR_TAG);
 		}
 
+		writer.write("Phase: " + PortletRequest.RENDER_PHASE);
+		writer.write(HTMLUtil.BR_TAG);
+
 		HTMLUtil.writeMap(writer, PortletRequest.RENDER_PHASE, "publicParameterMap",
 			renderRequest.getPublicParameterMap());
 		writer.write(HTMLUtil.HR_TAG);
@@ -97,9 +108,15 @@ public class TestPortlet extends GenericPortlet {
 		HTMLUtil.writeMap(writer, PortletRequest.RENDER_PHASE, "parameterMap", renderRequest.getParameterMap());
 		writer.write(HTMLUtil.HR_TAG);
 
+		// RenderURL
+		PortletURL renderURL = renderResponse.createRenderURL();
+		renderURL.setParameter("publicRenderParameter1", "renderURL");
+		renderURL.setParameter("privateRenderParameter1", "renderURL");
+		writer.write("<a href=\"" + renderURL.toString() + "\">" + "ReRender to set State</a>");
+
 		// Form submitted with ActionURL
 		PortletURL actionURL = renderResponse.createActionURL();
-		actionURL.setParameter("publicRenderParameter1", "1");
+		actionURL.setParameter("publicRenderParameter1", "actionURL");
 		actionURL.setParameter("actionURLParameter1", "1");
 		writer.write("<form action=\"" + actionURL.toString() + "\" method=\"post\">");
 		writer.write("<label>formParameter1</label>");
