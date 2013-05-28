@@ -22,8 +22,9 @@ import java.io.Writer;
  */
 public class ConsoleHTMLWriter extends Writer {
 
-	private static final String DASHES =
+	private static final String CONSOLE_DASHES =
 		"--------------------------------------------------------------------------------";
+	private static final String CONSOLE_DOUBLE_SPACE = "  ";
 
 	@Override
 	public void close() throws IOException {
@@ -40,8 +41,11 @@ public class ConsoleHTMLWriter extends Writer {
 		if (message.equals(HTMLUtil.BR_TAG)) {
 			System.err.println();
 		}
+		else if (message.equals(HTMLUtil.DOUBLE_SPACE)) {
+			System.err.print(CONSOLE_DOUBLE_SPACE);
+		}
 		else if (message.equals(HTMLUtil.HR_TAG)) {
-			System.err.println(DASHES);
+			System.err.println(CONSOLE_DASHES);
 		}
 		else {
 			System.err.print(message);
