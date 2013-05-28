@@ -27,29 +27,29 @@ In order to use these profiles, the PORTLETBOX_HOME environment variable must po
 
 * Clone the repository to your local hard drive:
 
-	git clone https://github.com/yourUserId/portletbox.git 
-	cd portletbox
+		git clone https://github.com/yourUserId/portletbox.git 
+		cd portletbox
 
 * Specify "upstream" as one of your remotes:
 
-	git remote add upstream https://github.com/ngriffin7a/portletbox
+		git remote add upstream https://github.com/ngriffin7a/portletbox
 
 * PLEASE KEEP THE BRANCHES OF YOUR FORK IN SYNC with upstream. For example:
 
-	git pull --rebase upstream master
+		git pull --rebase upstream master
 
 * Create a branch with a meaningful name (like an issue identifier), for example:
 
-	git branch PORTLETSPEC3-7
+		git branch PORTLETSPEC3-7
 
 * Switch to the new branch:
 
-	git checkout PORTLETSPEC3-7
+		git checkout PORTLETSPEC3-7
 
 * Do your development/bugfix work in this branch, commit files, and then push to origin. For example:
 
-	git commit -a
-	git push origin PORTLETSPEC3-7
+		git commit -a
+		git push origin PORTLETSPEC3-7
 
   _Note that when you commit, include the issue identifier in the comment. For example: PORTLETSPEC3-7 Added fixes_
 
