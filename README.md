@@ -51,7 +51,7 @@ In order to use these profiles, the PORTLETBOX_HOME environment variable must po
 		git commit -a
 		git push origin PORTLETSPEC3-7
 
-  _Note that when you commit, include the issue identifier in the comment. For example:
+  Note that when you commit, include the issue identifier in the comment. For example:
 	PORTLETSPEC3-7 Added fixes
 
 * Click on the **branch** selection menu, and click on the branch (i.e.: PORTLETSPEC3-7)
