@@ -30,7 +30,7 @@ import com.liferay.portletbox.issuesutil.HTMLUtil;
 /**
  * @author  Neil Griffin
  */
-public class TestPortlet extends GenericPortlet {
+public class TestPortlet3_9 extends GenericPortlet {
 
 	@Override
 	public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException,
