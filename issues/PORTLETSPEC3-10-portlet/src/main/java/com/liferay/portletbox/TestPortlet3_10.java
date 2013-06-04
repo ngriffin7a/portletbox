@@ -34,7 +34,7 @@ import com.liferay.portletbox.issuesutil.HTMLUtil;
 /**
  * @author  Neil Griffin
  */
-public class TestPortlet extends GenericPortlet {
+public class TestPortlet3_10 extends GenericPortlet {
 
 	@Override
 	public void serveResource(ResourceRequest resourceRequest, ResourceResponse resourceResponse)

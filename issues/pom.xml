@@ -28,5 +28,50 @@
 				<module>issues-hook</module>
 			</modules>
 		</profile>
+
+    <!--
+      | This profile executes the embedded GateIn PC with the tomcat-maven-plugin.
+      |
+      | Usage: in a portlet directory run "mvn -Pgatein integration-test
+      |        point your browser to localhost:8080/portal
+    -->
+    <profile>
+      <id>gatein-pc</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.liferay.portletbox</groupId>
+          <artifactId>gatein-pc</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.tomcat.maven</groupId>
+            <artifactId>tomcat7-maven-plugin</artifactId>
+            <version>2.1</version>
+            <dependencies>
+              <!-- Simulates portlet jar loaded in server classloader -->
+              <dependency>
+                <groupId>javax.portlet</groupId>
+                <artifactId>portlet-api</artifactId>
+                <version>2.0</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>run-war-only</goal>
+                </goals>
+                <phase>integration-test</phase>
+                <configuration>
+                  <path>/portal</path>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
 	</profiles>
 </project>

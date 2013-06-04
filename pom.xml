@@ -37,6 +37,7 @@
 	</scm>
 
 	<modules>
+		<module>gatein-pc</module>
 		<module>issues</module>
 	</modules>
 

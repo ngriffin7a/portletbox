@@ -34,7 +34,7 @@ import com.liferay.portletbox.issuesutil.HTMLUtil;
 /**
  * @author  Neil Griffin
  */
-public class TestPortlet extends GenericPortlet {
+public class TestPortlet3_8 extends GenericPortlet {
 
 	private final String ACTION_TEST = "ActionTest";
 
