@@ -16,7 +16,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class RedirectServlet extends HttpServlet {
 
-    /** . */
+	private static final long serialVersionUID = 4802312414356615240L;
+
     private final List<String> portletNames;
 
     public RedirectServlet(List<String> portletNames) {
