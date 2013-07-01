@@ -4,7 +4,7 @@
 	<portlet>
 		<portlet-name>portletnamefromdescriptor</portlet-name>
 		<display-name>PORTLETSPEC3-14</display-name>
-		<portlet-class>com.liferay.portletbox.TestPortlet</portlet-class>
+		<portlet-class>com.liferay.portletbox.TestPortlet3_14</portlet-class>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>

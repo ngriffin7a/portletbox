@@ -27,7 +27,7 @@ import com.liferay.portletbox.issuesutil.HTMLUtil;
 /**
  * @author  Neil Griffin
  */
-public class TestPortlet extends GenericPortlet {
+public class TestPortlet3_14 extends GenericPortlet {
 
 	private String title;
 	private String titleError;
