@@ -427,7 +427,10 @@ public class TestPortlet3_8 extends GenericPortlet {
 		String namespace = renderResponse.getNamespace();
 		writer.write(" name=\"" + namespace + "formParameter1\"");
 		writer.write(" value=\"1\"");
-		writer.write("/>");
+      writer.write("/><br/>");
+      writer.write("<input type='radio' name='ParameterX' value='Yes' checked>Yes ");
+      writer.write("<input type='radio' name='ParameterX' value='No'>No ");
+      writer.write("<input type='radio' name='ParameterX' value='Maybe'>Maybe<br/>");
 		writer.write("<input type=\"submit\" value=\"Invoke ACTION_PHASE\" />");
 		writer.write("</form>");
 
