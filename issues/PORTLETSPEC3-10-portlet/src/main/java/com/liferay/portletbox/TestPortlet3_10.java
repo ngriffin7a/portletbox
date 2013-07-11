@@ -34,9 +34,13 @@ package com.liferay.portletbox;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import java.util.Map;
 import java.util.Set;
 
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
@@ -54,6 +58,29 @@ import com.liferay.portletbox.issuesutil.HTMLUtil;
  * @author  Neil Griffin
  */
 public class TestPortlet3_10 extends GenericPortlet {
+
+   @Override
+   public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException,
+   IOException {
+
+      // Writer writer = new ConsoleHTMLWriter();
+      StringWriter writer = new StringWriter();
+
+      // output the parameters on the Action request -
+
+      writer.write(HTMLUtil.HR_TAG);
+      HTMLUtil.writeMapCompact(writer, PortletRequest.ACTION_PHASE, "publicParameterMap",
+            actionRequest.getPublicParameterMap());
+      writer.write(HTMLUtil.HR_TAG);
+      HTMLUtil.writeMapCompact(writer, PortletRequest.ACTION_PHASE, "privateParameterMap",
+            actionRequest.getPrivateParameterMap());
+      writer.write(HTMLUtil.HR_TAG);
+      HTMLUtil.writeMapCompact(writer, PortletRequest.ACTION_PHASE, "parameterMap", actionRequest.getParameterMap());
+      writer.write(HTMLUtil.HR_TAG);
+
+      String writtenStuff = writer.toString();
+      actionRequest.getPortletSession().setAttribute("ActionString", writtenStuff);
+   }
 
 	@Override
 	public void serveResource(ResourceRequest resourceRequest, ResourceResponse resourceResponse)
@@ -77,24 +104,97 @@ public class TestPortlet3_10 extends GenericPortlet {
 		HTMLUtil.writeParameters(writer, PortletRequest.RESOURCE_PHASE, resourceRequest);
 		writer.write(HTMLUtil.HR_TAG);
 
+        writer.write("Cacheability is set to: " + resourceRequest.getCacheability());
+        writer.write(HTMLUtil.HR_TAG);
+      
 		writer.write("<span>");
 
 		// Create resource URL with no further processing -
 
+		String testName = "createResourceURL(), no new parameters";		
 		ResourceURL resourceURL = resourceResponse.createResourceURL();
 
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling resourceResponse.createResourceURL() without setting a new parameter:",
-			resourceURL.toString());
+		TableWriter tw = new TableWriter(writer);
+		tw.startTable();
+		
+		tw.writeURL(testName,  resourceURL.toString() );
 
 		// Create resource URL, setting parameter -
 
+        testName = "createResourceURL(), set new parameter";		
 		resourceURL = resourceResponse.createResourceURL();
 		resourceURL.setParameter("resourceURLParameter4", "44");
 
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling resourceResponse.createResourceURL() and setting a new parameter:",
-			resourceURL.toString());
+      tw.writeURL(testName,  resourceURL.toString() );
+      
+      // Create resource URL, setting parameter, cacheability=FULL -
+      
+      testName = "createResourceURL(), set parm, cache=FULL";      
+      resourceURL = resourceResponse.createResourceURL();
+      try {resourceURL.setCacheability(ResourceURL.FULL);}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
+      resourceURL.setParameter("resourceURLParameter4", "setInResURL-FULL");
+
+      tw.writeURL(testName,  resourceURL.toString() );
+      
+      // Create resource URL, setting parameter, cacheability=PORTLET -
+      
+      testName = "createResourceURL(), set parm, cache=PORTLET";      
+      resourceURL = resourceResponse.createResourceURL();
+      try {resourceURL.setCacheability(ResourceURL.PORTLET);}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
+      resourceURL.setParameter("resourceURLParameter4", "setInResURL-PORTLET");
+
+      tw.writeURL(testName,  resourceURL.toString() );
+      
+      // Create resource URL, setting parameter, cacheability=PAGE -
+      
+      testName = "createResourceURL(), set parm, cache=PAGE";      
+      resourceURL = resourceResponse.createResourceURL();
+      try {resourceURL.setCacheability(ResourceURL.PAGE);}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
+      resourceURL.setParameter("resourceURLParameter4", "setInResURL-PAGE");
+
+      tw.writeURL(testName,  resourceURL.toString() );
+      
+      // Create render URL, set public & private render parameters
+      
+      testName = "createRenderURL(), set parameters";
+      PortletURL renderURL = null;
+      try {renderURL = resourceResponse.createRenderURL();}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"createRenderURL() failed.<br/>" + e.toString() + "<br/>"); renderURL=null;}
+    
+      if (renderURL != null) {
+         renderURL.setParameter("publicRenderParameter1", "Public parameter set during Resource Phase");
+         renderURL.setParameter("privateRenderParameter9", "Private parameter set during Resource Phase");
+         tw.writeURL(testName,  renderURL.toString() );
+      }
+      
+      // Create action URL, set public & private render parameters
+      
+      testName = "createActionURL(), set parameters";      
+      PortletURL actionURL = null;
+      try {actionURL = resourceResponse.createActionURL();}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"createActionURL() failed.<br/>" + e.toString() + "<br/>"); actionURL=null;}
+      
+      if (actionURL != null) {
+         actionURL.setParameter("publicRenderParameter1", "Public parameter set during Resource Phase");
+         actionURL.setParameter("privateRenderParameter9", "Private parameter set during Resource Phase");
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+      
+      // Create render URL, set no parameters
+      
+      testName = "createRenderURL(), set no parameters";
+      renderURL = null;
+      try {renderURL = resourceResponse.createRenderURL();}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"createRenderURL() failed.<br/>" + e.toString() + "<br/>"); renderURL=null;}
+    
+      if (renderURL != null) {
+         tw.writeURL(testName,  renderURL.toString() );
+      }
+
+      tw.endTable();
 
 		writer.write("</span>");
 		writer.write("</body></html>");
@@ -106,6 +206,18 @@ public class TestPortlet3_10 extends GenericPortlet {
 
 		PrintWriter writer = renderResponse.getWriter();
 
+		// If available, write out messages from action request -
+		
+      String actionString = (String) renderRequest.getPortletSession().getAttribute("ActionString");
+      if (actionString != null) {
+         writer.write("Messages from Action Phase:<br/>");
+         writer.write(actionString);
+         writer.write(HTMLUtil.HR_TAG);
+         renderRequest.getPortletSession().removeAttribute("ActionString");
+      }
+
+      // Display current parameters -
+		
 		writer.write(HTMLUtil.HR_TAG);
 		HTMLUtil.writeMapCompact(writer, PortletRequest.RENDER_PHASE, "publicParameterMap",
 			renderRequest.getPublicParameterMap());
@@ -130,35 +242,41 @@ public class TestPortlet3_10 extends GenericPortlet {
 		writer.write("]");
 		writer.write(HTMLUtil.HR_TAG);
 
+		// Create URLs for tests -
+
+      TableWriter tw = new TableWriter(writer);
+      tw.startTable();
+
 		// Create render URL w/o parameters -
 
+      String testName = "createRenderURL() w/o parameters";      
 		PortletURL renderURL = renderResponse.createRenderURL();
 
-		HTMLUtil.writeURL(writer, "Created render URL w/o parameters -", renderURL.toString());
+      tw.writeURL(testName,  renderURL.toString() );
 
 		// Create Render URL, copying all parameters from request using map -
 
+      testName = "createRenderURL() copying all parameters";      
 		renderURL = renderResponse.createRenderURL();
 
 		Map<String, String[]> parmMap = renderRequest.getParameterMap();
 		renderURL.setParameters(parmMap);
 
-		HTMLUtil.writeURL(writer, "Create Render URL, copying all parameters from request using map -",
-			renderURL.toString());
+      tw.writeURL(testName,  renderURL.toString() );
 
 		// set public & private render parameters -
 
+      testName = "createRenderURL(), set private & public parameters";		
 		renderURL = renderResponse.createRenderURL();
 
 		renderURL.setParameter("publicRenderParameter1", "2");
 		renderURL.setParameter("privateRenderParameter1", "1");
 
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling renderResponse.createRenderURL() and then setParameter(\"publicRenderParameter1\", \"2\") and setParameter(\"privateRenderParameter1\", \"1\")",
-			renderURL.toString());
+      tw.writeURL(testName,  renderURL.toString() );
 
 		// set public & private render parameters, making use of map -
 
+      testName = "createRenderURL(), renderURL.getParameterMap().put()";		
 		renderURL = renderResponse.createRenderURL();
 
 		renderURL.setParameter("publicRenderParameter1", "2");
@@ -167,110 +285,120 @@ public class TestPortlet3_10 extends GenericPortlet {
 		String[] values = { "Fred", "Wilma", "Pebbles" };
 		renderURL.getParameterMap().put("privateRenderParameter2", values);
 
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling renderResponse.createRenderURL(), setting public and private parameters, and getParameterMap().put()",
-			renderURL.toString());
+      tw.writeURL(testName,  renderURL.toString() );
 
-		// set & delete parameters on render URL through setParameter() -
+      // set & delete parameters on render URL through setParameter() using null string -
 
+      testName = "createRenderURL(), remove parameters #1";      
 		renderURL = renderResponse.createRenderURL();
 
 		renderURL.setParameter("privateRenderParameter1", "1");
 
 		Set<String> keySet = parmMap.keySet();
+      for (String key: keySet){
+         try { renderURL.setParameter(key, (String)null); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove " + key + " from URL failed.<br/>" + e.toString() + "<br/>");}
+      }
 
+      tw.writeURL(testName,  renderURL.toString() );
+
+      // set & delete parameters on render URL through setParameter() using "" string -
+      
+      testName = "createRenderURL(), remove parameters #2";      
+      renderURL = renderResponse.createRenderURL();
+
+      renderURL.setParameter("privateRenderParameter1", "1");
+      
+      keySet = parmMap.keySet();
 		for (String key : keySet) {
-
-			try {
-				renderURL.setParameter(key, (String) null);
-			}
-			catch (Exception e) {
-				writer.write("remove " + key + " from URL failed.<br/>" + e.getMessage() + "<br/>");
-			}
+         try { renderURL.setParameter(key, ""); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove " + key + " from URL failed.<br/>" + e.toString() + "<br/>");}
 		}
 
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling renderResponse.createRenderURL() and removing all parameters through setParameter(name, null) for each parameter name:",
-			renderURL.toString());
+      tw.writeURL(testName,  renderURL.toString() );
 
-		// set & delete parameters on render URL through setParameters() -
+      // set & delete parameters on render URL through setParameters() using String[] {null} -
 
+      testName = "createRenderURL() remove parameters #3";      
 		renderURL = renderResponse.createRenderURL();
 
 		renderURL.setParameter("privateRenderParameter1", "1");
 
 		parmMap = renderURL.getParameterMap();
 		keySet = parmMap.keySet();
+      String[] parmVals = {null};
+      for (String key: keySet){
+         try { parmMap.put(key, parmVals); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"updating map entry " + key + "failed.<br/>" + e.toString() + "<br/>");}
+      }
+      try { renderURL.setParameters(parmMap); }
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameters() failed.<br/>" + e.toString() + "<br/>");}
 
-		String[] parmVals = { null };
+      tw.writeURL(testName,  renderURL.toString() );
 
-		for (String key : keySet) {
+      // set & delete parameters on render URL through setParameters() using String[] {""} -
 
-			try {
-				parmMap.put(key, parmVals);
-			}
-			catch (Exception e) {
-				writer.write("updating map entry " + key + "failed.<br/>" + e.getMessage() + "<br/>");
-			}
+      testName = "createRenderURL() remove parameters #4";      
+      renderURL = renderResponse.createRenderURL();
+
+      renderURL.setParameter("privateRenderParameter1", "1");
+
+      parmMap = renderURL.getParameterMap();
+      keySet = parmMap.keySet();
+      String[] parmVals2 = {""};
+      for (String key: keySet){
+         try { parmMap.put(key, parmVals2); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"updating map entry " + key + "failed.<br/>" + e.toString() + "<br/>");}
 		}
+      try { renderURL.setParameters(parmMap); }
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameters() failed.<br/>" + e.toString() + "<br/>");}
 
-		try {
-			renderURL.setParameters(parmMap);
-		}
-		catch (Exception e) {
-			writer.write("setParameters() failed.<br/>" + e.getMessage() + "<br/>");
-		}
-
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling renderResponse.createRenderURL() and removing all parameters through setParameters()",
-			renderURL.toString());
+      tw.writeURL(testName,  renderURL.toString() );
 
 		// render URL with public render parameter removed -
 
+      testName = "createRenderURL() and removePublicRenderParameter()";      
 		renderURL = renderResponse.createRenderURL();
 
-		try {
-			renderURL.removePublicRenderParameter("publicRenderParameter1");
-		}
-		catch (Exception e) {
-			writer.write("remove publicRenderParameter1 from URL failed.<br/>" + e.getMessage() + "<br/>");
-		}
+      try {renderURL.removePublicRenderParameter("publicRenderParameter1");}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove publicRenderParameter1 from URL failed.<br/>" + e.toString() + "<br/>");}
 
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling renderResponse.createRenderURL() and removePublicRenderParameter()",
-			renderURL.toString());
+      tw.writeURL(testName,  renderURL.toString() );
 
 		// Resource URL with no further processing -
 
+		testName = "createResourceURL(), no add'l parameters";      
 		ResourceURL resourceURL = renderResponse.createResourceURL();
 
-		HTMLUtil.writeURL(writer, "The following URL is a result of calling renderResponse.createResourceURL()",
-			resourceURL.toString());
+      tw.writeURL(testName,  resourceURL.toString() );
 
-		// Resource URL attempting to remove parameters -
+		// Resource URL attempting to remove parameters using setParameter("parm", null) -
 
+      testName = "createResourceURL(), remove parameters (null)";		
 		resourceURL = renderResponse.createResourceURL();
 
-		try {
-			resourceURL.setParameter("publicRenderParameter1", (String) null);
-		}
-		catch (Exception e) {
-			writer.write("remove publicRenderParameter1 from URL failed.<br/>" + e.getMessage() + "<br/>");
-		}
+		try { resourceURL.setParameter("publicRenderParameter1", (String) null); }
+		catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove publicRenderParameter1 from URL failed.<br/>" + e.toString() + "<br/>");}
+      try { resourceURL.setParameter("privateRenderParameter1", (String) null); }
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove privateRenderParameter1 from URL failed.<br/>" + e.toString() + "<br/>");}
+		       
+      tw.writeURL(testName,  resourceURL.toString() );
+      
+      // Resource URL attempting to remove parameters  using setParameter("parm", "") -
 
-		try {
-			resourceURL.setParameter("privateRenderParameter1", (String) null);
-		}
-		catch (Exception e) {
-			writer.write("remove privateRenderParameter1 from URL failed.<br/>" + e.getMessage() + "<br/>");
-		}
+      testName = "createResourceURL(), remove parameters (\"\")";      
+      resourceURL = renderResponse.createResourceURL();
 
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling renderResponse.createResourceURL() and attempting to remove publicRenderParameter1 & privateRenderParameter1:",
-			resourceURL.toString());
+      try { resourceURL.setParameter("publicRenderParameter1", ""); }
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove publicRenderParameter1 from URL failed.<br/>" + e.toString() + "<br/>");}
+      try { resourceURL.setParameter("privateRenderParameter1", ""); }
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove privateRenderParameter1 from URL failed.<br/>" + e.toString() + "<br/>");}
+
+      tw.writeURL(testName,  resourceURL.toString() );
 
 		// Resource URL setting parameters using various means -
 
+		testName = "createResourceURL() setting parameters";		
 		resourceURL = renderResponse.createResourceURL();
 
 		resourceURL.setParameter("publicRenderParameter1", "30");
@@ -280,9 +408,82 @@ public class TestPortlet3_10 extends GenericPortlet {
 		String[] values2 = { "Barney", "Betty" };
 		resourceURL.getParameterMap().put("resourceURLParameter3", values2);
 
-		HTMLUtil.writeURL(writer,
-			"The following URL is a result of calling renderResponse.createResourceURL() and setting resource parameters:",
-			resourceURL.toString());
+		tw.writeURL(testName,  resourceURL.toString() );
+      
+      // Create resource URL, setting parameter, cacheability=FULL -
+      
+      testName = "createResourceURL(), set parm, cache=FULL";      
+      resourceURL = renderResponse.createResourceURL();
+      try {resourceURL.setCacheability(ResourceURL.FULL);}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
+      resourceURL.setParameter("resourceURLParameter3", "55");
+
+      tw.writeURL(testName,  resourceURL.toString() );
+      
+      // Create resource URL, setting parameter, cacheability=PORTLET -
+      
+      testName = "createResourceURL(), set parm, cache=PORTLET";      
+      resourceURL = renderResponse.createResourceURL();
+      try {resourceURL.setCacheability(ResourceURL.PORTLET);}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
+      resourceURL.setParameter("resourceURLParameter3", "66");
+
+      tw.writeURL(testName,  resourceURL.toString() );
+      
+      // Create resource URL, setting parameter, cacheability=PAGE -
+      
+      testName = "createResourceURL(), set parm, cache=PAGE";      
+      resourceURL = renderResponse.createResourceURL();
+      try {resourceURL.setCacheability(ResourceURL.PAGE);}
+      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
+      resourceURL.setParameter("resourceURLParameter3", "77");
+
+      tw.writeURL(testName,  resourceURL.toString() );
+
+      tw.endTable();
+	}
+   
+   private class TableWriter {
+      int colCounter = 0;
+      final int NUMBER_OF_COLUMNS = 3;
+      PrintWriter writer = null;
+      
+      public TableWriter (PrintWriter writer) {
+         this.writer = writer;
+      }
+      
+      public void startTable () {
+         colCounter = 0;
+         writer.write("<table border='0' cellpadding='4'><tr>");
+      }
+      
+      public void endTable () {
+         writer.write("</tr></table>");
+         writer.write(HTMLUtil.HR_TAG);
+      }
+
+      public void writeURL(String comment, String urlAsString) {
+         writer.write("<td>");
+         writer.write("<a href=\"");
+         writer.write(urlAsString);
+         writer.write("\">");
+         writer.write(comment);
+         writer.write(HTMLUtil.BR_TAG);
+         writer.write("</a>");
+         writer.write("</td>");
+         if (++colCounter % NUMBER_OF_COLUMNS == 0) {
+            writer.write("</tr><tr>");
+         }
+      }
+      
+      public void writeButton(String comment, String urlAsString) {
+         writer.write("<td><form action=\"" + urlAsString + "\" method=\"post\">");
+         writer.write("<input type=\"submit\" value=\"" + comment + "\" />");
+         writer.write("</form></td>");
+         if (++colCounter % NUMBER_OF_COLUMNS == 0) {
+            writer.write("</tr><tr>");
+         }
+      }
 
 	}
 
