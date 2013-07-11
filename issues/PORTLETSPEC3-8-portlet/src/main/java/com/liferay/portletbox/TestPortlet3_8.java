@@ -48,6 +48,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import com.liferay.portletbox.issuesutil.HTMLUtil;
+import com.liferay.portletbox.issuesutil.TableWriter;
 
 
 /**
@@ -441,62 +442,75 @@ public class TestPortlet3_8 extends GenericPortlet {
 		writer.write(HTMLUtil.HR_TAG);
 
 		// Buttons for tests -
-
-		writer.write("<table border=\"0\"><tr>");
+		
+		TableWriter tw = new TableWriter(writer);
+      tw.startTable();
 
 		actionURL = renderResponse.createActionURL();
-		writeButton(writer, actionURL.toString(), "Action w/o parameters");
+		String testName = "Action w/o parameters";
+		
+      tw.writeButton(testName,  actionURL.toString() );
+
 		actionURL.setParameter(ACTION_TEST, "1");
-		writeButton(writer, actionURL.toString(), "Set & Remove Public Parm");
+		testName = "Set & Remove Public Parm";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "2");
-		writeButton(writer, actionURL.toString(), "Set & Remove Private Parm");
+		testName = "Set & Remove Private Parm";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "3");
-		writeButton(writer, actionURL.toString(), "Remove Parameters using values[]");
-
-		writer.write("</tr><tr>");
-
+		testName = "Remove Parameters using values[]";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "4");
-		writeButton(writer, actionURL.toString(), "Set Parms direct Map #1");
+		testName = "Set Parms direct Map #1";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "5");
-		writeButton(writer, actionURL.toString(), "Set Parms direct Map #2");
+		testName = "Set Parms direct Map #2";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "6");
-		writeButton(writer, actionURL.toString(), "SetParameters() #1");
+		testName = "SetParameters() #1";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "7");
-		writeButton(writer, actionURL.toString(), "SetParameters() #2");
-
-		writer.write("</tr><tr>");
-
+		testName = "SetParameters() #2";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "8");
-		writeButton(writer, actionURL.toString(), "Remove Parms using cleared map");
+		testName = "Remove Parms using cleared map";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "9");
-		writeButton(writer, actionURL.toString(), "Remove Parms, values[]={null}");
-
+		testName = "Remove Parms, values[]={null}";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL = renderResponse.createActionURL();
 		actionURL.setParameter("publicRenderParameter1", "157");
 		actionURL.setParameter("actionURLParameter1", "342");
 		actionURL.setParameter(ACTION_TEST, "10");
-		writeButton(writer, actionURL.toString(), "Copy action parms to response");
-
+		testName = "Copy action parms to response";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL = renderResponse.createActionURL();
 		actionURL.setParameter(ACTION_TEST, "11");
-		writeButton(writer, actionURL.toString(), "removePublicRenderParameter()");
-
-		writer.write("</tr><tr>");
-
+		testName = "removePublicRenderParameter()";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "12");
-		writeButton(writer, actionURL.toString(), "actionURL.setParameters() before");
+		testName = "actionURL.setParameters() before";
+		tw.writeButton(testName,  actionURL.toString() );
+		
 		actionURL.setParameter(ACTION_TEST, "13");
-		writeButton(writer, actionURL.toString(), "actionURL.setParameters() after");
+		testName = "actionURL.setParameters() after";
+		tw.writeButton(testName,  actionURL.toString() );
 
-		writer.write("</tr></table>");
+
+		tw.endTable();
 
 		writer.write(HTMLUtil.HR_TAG);
-	}
-
-	private void writeButton(PrintWriter writer, String url, String text) {
-		writer.write("<td><form action=\"" + url + "\" method=\"post\">");
-		writer.write("<input type=\"submit\" value=\"" + text + "\" />");
-		writer.write("</form></td>");
 	}
 
 }
