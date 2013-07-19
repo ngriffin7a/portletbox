@@ -405,7 +405,7 @@ public class TestPortlet3_10 extends GenericPortlet {
          try { renderURL.setParameter("publicRenderParameter1", vals); }
          catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameter() failed.<br/>" + e.toString() + "<br/>");}
 
-         String[] vals2 = {"J", "K", null};
+         String[] vals2 = {"J", "K", null, "M", "", "O"};
          try { renderURL.setParameter("privateRenderParameter1", vals2); }
          catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameter() failed.<br/>" + e.toString() + "<br/>");}
 
