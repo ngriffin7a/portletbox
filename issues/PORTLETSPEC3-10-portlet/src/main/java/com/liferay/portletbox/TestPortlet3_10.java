@@ -260,9 +260,10 @@ public class TestPortlet3_10 extends GenericPortlet {
       testName = "createRenderURL() copying all parameters";      
       renderURL = renderResponse.createRenderURL();
 
-      Map<String, String[]> parmMap = renderRequest.getParameterMap();
-      renderURL.setParameters(parmMap);
-
+      {  
+         Map<String, String[]> parmMap = renderRequest.getParameterMap();
+         renderURL.setParameters(parmMap);
+      }
       tw.writeURL(testName,  renderURL.toString() );
 
       // set public & private render parameters -
@@ -289,72 +290,83 @@ public class TestPortlet3_10 extends GenericPortlet {
       tw.writeURL(testName,  renderURL.toString() );
 
       // set & delete parameters on render URL through setParameter() using null string -
+      {
+         testName = "createRenderURL(), remove parameters #1";      
+         renderURL = renderResponse.createRenderURL();
 
-      testName = "createRenderURL(), remove parameters #1";      
-      renderURL = renderResponse.createRenderURL();
+         renderURL.setParameter("privateRenderParameter1", "1");
 
-      renderURL.setParameter("privateRenderParameter1", "1");
 
-      Set<String> keySet = parmMap.keySet();
-      for (String key: keySet){
-         try { renderURL.setParameter(key, (String)null); }
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove " + key + " from URL failed.<br/>" + e.toString() + "<br/>");}
+         Map<String, String[]> parmMap = renderURL.getParameterMap();
+         Set<String> keySet = parmMap.keySet();
+         for (String key: keySet){
+            try { renderURL.setParameter(key, (String)null); }
+            catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove " + key + " from URL failed.<br/>" + e.toString() + "<br/>");}
+         }
+
+
+         tw.writeURL(testName,  renderURL.toString() );
       }
-
-      tw.writeURL(testName,  renderURL.toString() );
 
       // set & delete parameters on render URL through setParameter() using "" string -
 
-      testName = "createRenderURL(), remove parameters #2";      
-      renderURL = renderResponse.createRenderURL();
+      {
+         testName = "createRenderURL(), remove parameters #2";      
+         renderURL = renderResponse.createRenderURL();
 
-      renderURL.setParameter("privateRenderParameter1", "1");
+         renderURL.setParameter("privateRenderParameter1", "1");
 
-      keySet = parmMap.keySet();
-      for (String key : keySet) {
-         try { renderURL.setParameter(key, ""); }
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove " + key + " from URL failed.<br/>" + e.toString() + "<br/>");}
+         Map<String, String[]> parmMap = renderURL.getParameterMap();
+         Set<String> keySet = parmMap.keySet();
+         for (String key : keySet) {
+            try { renderURL.setParameter(key, ""); }
+            catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove " + key + " from URL failed.<br/>" + e.toString() + "<br/>");}
+         }
+
+         tw.writeURL(testName,  renderURL.toString() );
       }
-
-      tw.writeURL(testName,  renderURL.toString() );
 
       // set & delete parameters on render URL through setParameters() using String[] {null} -
 
-      testName = "createRenderURL() remove parameters #3";      
-      renderURL = renderResponse.createRenderURL();
+      {
+         testName = "createRenderURL() remove parameters #3";      
+         renderURL = renderResponse.createRenderURL();
 
-      renderURL.setParameter("privateRenderParameter1", "1");
+         renderURL.setParameter("privateRenderParameter1", "1");
 
-      parmMap = renderURL.getParameterMap();
-      keySet = parmMap.keySet();
-      String[] parmVals = {null};
-      for (String key: keySet){
-         try { parmMap.put(key, parmVals); }
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"updating map entry " + key + "failed.<br/>" + e.toString() + "<br/>");}
+         Map<String, String[]> parmMap = renderURL.getParameterMap();
+         Set<String> keySet = parmMap.keySet();
+         String[] parmVals = {null};
+         for (String key: keySet){
+            try { parmMap.put(key, parmVals); }
+            catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"updating map entry " + key + "failed.<br/>" + e.toString() + "<br/>");}
+         }
+         try { renderURL.setParameters(parmMap); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameters() failed.<br/>" + e.toString() + "<br/>");}
+
+         tw.writeURL(testName,  renderURL.toString() );
       }
-      try { renderURL.setParameters(parmMap); }
-      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameters() failed.<br/>" + e.toString() + "<br/>");}
-
-      tw.writeURL(testName,  renderURL.toString() );
 
       // set & delete parameters on render URL through setParameters() using String[] {""} -
 
-      testName = "createRenderURL() remove parameters #4";      
-      renderURL = renderResponse.createRenderURL();
+      {
+         testName = "createRenderURL() remove parameters #4";      
+         renderURL = renderResponse.createRenderURL();
 
-      renderURL.setParameter("privateRenderParameter1", "1");
+         renderURL.setParameter("privateRenderParameter1", "1");
 
-      parmMap = renderURL.getParameterMap();
-      keySet = parmMap.keySet();
-      String[] parmVals2 = {""};
-      for (String key: keySet){
-         try { parmMap.put(key, parmVals2); }
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"updating map entry " + key + "failed.<br/>" + e.toString() + "<br/>");}
+         Map<String, String[]> parmMap = renderURL.getParameterMap();
+         Set<String> keySet = parmMap.keySet();
+         String[] parmVals2 = {""};
+         for (String key: keySet){
+            try { parmMap.put(key, parmVals2); }
+            catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"updating map entry " + key + "failed.<br/>" + e.toString() + "<br/>");}
+         }
+         try { renderURL.setParameters(parmMap); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameters() failed.<br/>" + e.toString() + "<br/>");}
+
+         tw.writeURL(testName,  renderURL.toString() );
       }
-      try { renderURL.setParameters(parmMap); }
-      catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameters() failed.<br/>" + e.toString() + "<br/>");}
-
-      tw.writeURL(testName,  renderURL.toString() );
 
       // render URL with public render parameter removed -
 
@@ -365,6 +377,40 @@ public class TestPortlet3_10 extends GenericPortlet {
       catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"remove publicRenderParameter1 from URL failed.<br/>" + e.toString() + "<br/>");}
 
       tw.writeURL(testName,  renderURL.toString() );
+
+      // render URL, multivalue parameters
+
+      {
+         testName = "Render URL, multivalue parms";      
+         renderURL = renderResponse.createRenderURL();
+
+         String[] vals = {"A", "B", "C"};
+         try { renderURL.setParameter("publicRenderParameter1", vals); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameter() failed.<br/>" + e.toString() + "<br/>");}
+
+         String[] vals2 = {"D", "E", "F"};
+         try { renderURL.setParameter("privateRenderParameter1", vals2); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameter() failed.<br/>" + e.toString() + "<br/>");}
+
+         tw.writeURL(testName,  renderURL.toString() );
+      }
+
+      // render URL, multivalue parameters with null string
+
+      {
+         testName = "Render URL, multivalue with null";      
+         renderURL = renderResponse.createRenderURL();
+
+         String[] vals = {"G", "", "I"};
+         try { renderURL.setParameter("publicRenderParameter1", vals); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameter() failed.<br/>" + e.toString() + "<br/>");}
+
+         String[] vals2 = {"J", "K", null};
+         try { renderURL.setParameter("privateRenderParameter1", vals2); }
+         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setParameter() failed.<br/>" + e.toString() + "<br/>");}
+
+         tw.writeURL(testName,  renderURL.toString() );
+      }
 
       // Resource URL with no further processing -
 
