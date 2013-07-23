@@ -19,6 +19,7 @@
 		<module>PORTLETSPEC3-8-portlet</module>
 		<module>PORTLETSPEC3-9-portlet</module>
 		<module>PORTLETSPEC3-10-portlet</module>
+		<module>PORTLETSPEC3-11-portlet</module>
 		<module>PORTLETSPEC3-14-portlet</module>
 	</modules>
 	<profiles>
