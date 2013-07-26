@@ -136,9 +136,18 @@ public class TestPortlet3_11 extends GenericPortlet {
       String writtenStuff = writer.toString();
       eventRequest.getPortletSession().setAttribute("EventString", writtenStuff);
 
-      eventResponse.setRenderParameter( "publicRenderParameter1", "Pub: Main Event resp." );
-      eventResponse.setRenderParameter( eventRequest.getEvent().getName(), (String)eventRequest.getEvent().getValue() );
-      eventResponse.setRenderParameter( "privateRenderParameter1", "Priv: Main Event resp." );
+      String eventName = eventRequest.getEvent().getName();
+      String eventValue = (String)eventRequest.getEvent().getValue();
+      eventResponse.setRenderParameter( eventName, eventValue );
+      
+      // If this is the echoed event, set some parameters to see effect.
+      // Otherwise, it's the event initiated by the companion, so we want 
+      // to see that the render parameters are those set previously for the portlet.
+      
+      if (TestPortlet3_11_Companion.EVENT_2_NAME.equalsIgnoreCase(eventName)) {
+         eventResponse.setRenderParameter( "publicRenderParameter1", "Pub: Main Event resp." );
+         eventResponse.setRenderParameter( "privateRenderParameter1", "Priv: Main Event resp." );
+      }
    }
 
 
