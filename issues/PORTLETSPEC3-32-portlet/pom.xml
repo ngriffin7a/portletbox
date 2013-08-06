@@ -9,7 +9,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>PORTLETSPEC3-31-portlet</artifactId>
+	<artifactId>PORTLETSPEC3-32-portlet</artifactId>
 	<packaging>war</packaging>
 	<name>${project.artifactId}</name>
 	<dependencies>

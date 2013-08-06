@@ -52,7 +52,7 @@ import com.liferay.portletbox.issuesutil.HTMLUtil;
 /**
  * @author  Neil Griffin
  */
-public class TestPortlet3_31 extends GenericPortlet {
+public class TestPortlet3_32 extends GenericPortlet {
 
 	@Override
 	public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException,

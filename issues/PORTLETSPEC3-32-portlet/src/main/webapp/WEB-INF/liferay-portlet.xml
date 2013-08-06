@@ -3,7 +3,7 @@
 
 <liferay-portlet-app>
 	<portlet>
-		<portlet-name>PORTLETSPEC3-31</portlet-name>
+		<portlet-name>PORTLETSPEC3-32</portlet-name>
 		<instanceable>false</instanceable>
 		<ajaxable>false</ajaxable>
 	</portlet>
