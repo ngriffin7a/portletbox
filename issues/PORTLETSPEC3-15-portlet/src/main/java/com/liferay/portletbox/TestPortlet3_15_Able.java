@@ -54,6 +54,10 @@ import javax.portlet.EventRequest;
 import javax.portlet.EventResponse;
 import javax.xml.namespace.QName;
 
+import javax.portlet.ProcessAction;
+import javax.portlet.ProcessEvent;
+import javax.portlet.RenderMode;
+
 import com.liferay.portletbox.issuesutil.HTMLUtil;
 import com.liferay.portletbox.issuesutil.TableWriter;
 
@@ -62,59 +66,89 @@ import com.liferay.portletbox.issuesutil.TableWriter;
  * @author  Scott Nicklous
  */
 @SuppressWarnings("unused")
-public class TestPortlet3_15_Companion extends GenericPortlet {
+public class TestPortlet3_15_Able extends GenericPortlet {
 
-   @Override
-   public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException,
-   IOException {
+   protected final static String ACTION_NAME   = "TestPortlet3_15-Action";
+   protected final static String EVENT_NAME    = "AnnotatedEvent";
+   protected final static String RENDER_NAME   = "view";
+   
+   public final String RENDER_PARM_NAME        = "RenderParameter";
+   
+   private final String PORTLET_SUFFIX         = "Able";
 
-      StringWriter writer = new StringWriter();
-      writer.write("Event was sent.");
-      String writtenStuff = writer.toString();
-      actionRequest.getPortletSession().setAttribute("ActionString", writtenStuff);
-      
-      QName eventQName = new QName(getDefaultNamespace(), TestPortlet3_15_Able.EVENT_NAME);
-      actionResponse.setEvent(eventQName, "Sent by companion");
-
+   @ProcessAction(name=ACTION_NAME)
+   public void ActionAble(ActionRequest actionRequest, ActionResponse actionResponse) 
+         throws PortletException, IOException {
+      actionResponse.setRenderParameter( RENDER_PARM_NAME, "Render Parameter set by Action" + PORTLET_SUFFIX);
    }
-
-
-   @Override
-   protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException,
-   IOException {
+   
+   @ProcessEvent(name=EVENT_NAME)
+   public void EventAble(EventRequest eventRequest, EventResponse eventResponse) 
+         throws PortletException, IOException {
+      eventResponse.setRenderParameter( RENDER_PARM_NAME, "Render Parameter set by Event"  + PORTLET_SUFFIX);
+   }
+   
+   @RenderMode(name=RENDER_NAME)
+   public void RenderAble(RenderRequest renderRequest, RenderResponse renderResponse) 
+         throws PortletException, IOException {
+      writePortletText(PORTLET_SUFFIX, renderRequest, renderResponse);
+   }
+   
+   // common render method used by all subclasses.   
+   protected void writePortletText(String suffix, RenderRequest renderRequest, 
+         RenderResponse renderResponse) throws IOException {
 
       PrintWriter writer = renderResponse.getWriter();
+      
+      writer.write("Rendered by Render"  + suffix + " ... (Should be Render3_15)<br/>");
+      writer.write("<ul>");
+      writer.write("<li>TestPortlet3_15_Able extends GenericPortlet</li>");
+      writer.write("<li>TestPortlet3_15_Baker extends TestPortlet3_15_Able</li>");
+      writer.write("<li>TestPortlet3_15_Charlie extends TestPortlet3_15_Baker</li>");
+      writer.write("<li>TestPortlet3_15 extends TestPortlet3_15_Charlie</li>");
+      writer.write("</ul>");
+      writer.write(HTMLUtil.HR_TAG);
+
 
       // If available, write out messages from action request -
 
-      String actionString = (String) renderRequest.getPortletSession().getAttribute("ActionString");
-      if (actionString != null) {
-         writer.write("Messages from Action Phase:<br/>");
-         writer.write(actionString);
-         renderRequest.getPortletSession().removeAttribute("ActionString");
+      writer.write("Parameter from Action or Event Phase: <br/> ... (Should be set by (none), EventBaker or ActionCharlie)<br/>");
+      String parmText = (String) renderRequest.getParameter(RENDER_PARM_NAME);
+      if (parmText != null) {
+         writer.write(parmText);
+      } else {
+         writer.write("(none)");
       }
+      writer.write("<br/>" +  HTMLUtil.HR_TAG);
 
-      writer.write(HTMLUtil.HR_TAG);
-
-      // Create URLs for tests -
+      // Create URLs & buttons
 
       TableWriter tw = new TableWriter(writer, 2);
       tw.startTable();
 
+      // Create render URL w/o parameters -
+
+      {
+         String testName = "RenderURL";      
+         PortletURL renderURL = renderResponse.createRenderURL();
+         tw.writeURL(testName,  renderURL.toString() );
+      }
+
       // Create action URL, set public & private render parameters
 
       {
-         String testName = "Send Event";      
+         String testName = "Do action";      
          PortletURL actionURL = null;
          try {actionURL = renderResponse.createActionURL();}
          catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"createActionURL() failed.<br/>" + e.toString() + "<br/>"); actionURL=null;}
-
          if (actionURL != null) {
+            actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_15_Able.ACTION_NAME);
             tw.writeButton(testName,  actionURL.toString() );
          }
       }
-
+      
       tw.endTable();
    }
+
 
 }

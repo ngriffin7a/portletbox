@@ -45,6 +45,9 @@ import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
+import javax.portlet.ProcessAction;
+import javax.portlet.ProcessEvent;
+import javax.portlet.RenderMode;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
@@ -62,59 +65,22 @@ import com.liferay.portletbox.issuesutil.TableWriter;
  * @author  Scott Nicklous
  */
 @SuppressWarnings("unused")
-public class TestPortlet3_15_Companion extends GenericPortlet {
+public class TestPortlet3_15_Charlie extends TestPortlet3_15_Baker {
+   
+   private final String PORTLET_SUFFIX         = "Charlie";
 
-   @Override
-   public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException,
-   IOException {
-
-      StringWriter writer = new StringWriter();
-      writer.write("Event was sent.");
-      String writtenStuff = writer.toString();
-      actionRequest.getPortletSession().setAttribute("ActionString", writtenStuff);
-      
-      QName eventQName = new QName(getDefaultNamespace(), TestPortlet3_15_Able.EVENT_NAME);
-      actionResponse.setEvent(eventQName, "Sent by companion");
-
+   @ProcessAction(name=ACTION_NAME)
+   public void ActionCharlie(ActionRequest actionRequest, ActionResponse actionResponse) 
+         throws PortletException, IOException {
+      actionResponse.setRenderParameter( RENDER_PARM_NAME, "Render Parameter set by Action" + PORTLET_SUFFIX);
+   }
+   
+   
+   @RenderMode(name=RENDER_NAME)
+   public void RenderCharlie(RenderRequest renderRequest, RenderResponse renderResponse) 
+         throws PortletException, IOException {
+      writePortletText(PORTLET_SUFFIX, renderRequest, renderResponse);
    }
 
-
-   @Override
-   protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException,
-   IOException {
-
-      PrintWriter writer = renderResponse.getWriter();
-
-      // If available, write out messages from action request -
-
-      String actionString = (String) renderRequest.getPortletSession().getAttribute("ActionString");
-      if (actionString != null) {
-         writer.write("Messages from Action Phase:<br/>");
-         writer.write(actionString);
-         renderRequest.getPortletSession().removeAttribute("ActionString");
-      }
-
-      writer.write(HTMLUtil.HR_TAG);
-
-      // Create URLs for tests -
-
-      TableWriter tw = new TableWriter(writer, 2);
-      tw.startTable();
-
-      // Create action URL, set public & private render parameters
-
-      {
-         String testName = "Send Event";      
-         PortletURL actionURL = null;
-         try {actionURL = renderResponse.createActionURL();}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"createActionURL() failed.<br/>" + e.toString() + "<br/>"); actionURL=null;}
-
-         if (actionURL != null) {
-            tw.writeButton(testName,  actionURL.toString() );
-         }
-      }
-
-      tw.endTable();
-   }
 
 }

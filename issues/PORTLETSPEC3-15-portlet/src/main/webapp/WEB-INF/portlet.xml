@@ -27,15 +27,8 @@
 			<role-name>user</role-name>
 		</security-role-ref>
 		<supported-processing-event>
-			<qname xmlns:x="http://liferay.com/events">x:PORTLETSPEC3-15-EVENT</qname>
+			<qname xmlns:x="PortletSpec3_15_Events">x:AnnotatedEvent</qname>
 		</supported-processing-event>
-		<supported-processing-event>
-			<qname xmlns:x="http://liferay.com/events">x:ECHOED-EVENT</qname>
-		</supported-processing-event>
-		<supported-publishing-event>
-			<qname xmlns:x="http://liferay.com/events">x:EVENT-TO-COMPANION</qname>
-		</supported-publishing-event>
-		<supported-public-render-parameter>publicRenderParameter1</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>PORTLETSPEC3-15-Companion</portlet-name>
@@ -62,31 +55,13 @@
 		<security-role-ref>
 			<role-name>user</role-name>
 		</security-role-ref>
-		<supported-processing-event>
-			<qname xmlns:x="http://liferay.com/events">x:EVENT-TO-COMPANION</qname>
-		</supported-processing-event>
 		<supported-publishing-event>
-			<qname xmlns:x="http://liferay.com/events">x:PORTLETSPEC3-15-EVENT</qname>
+			<qname xmlns:x="PortletSpec3_15_Events">x:AnnotatedEvent</qname>
 		</supported-publishing-event>
-		<supported-publishing-event>
-			<qname xmlns:x="http://liferay.com/events">x:ECHOED-EVENT</qname>
-		</supported-publishing-event>
-		<supported-public-render-parameter>publicRenderParameter1</supported-public-render-parameter>
 	</portlet>
+	<default-namespace>PortletSpec3_15_Events</default-namespace>
 	<event-definition>
-		<qname xmlns:x="http://liferay.com/events">x:PORTLETSPEC3-15-EVENT</qname>
+		<qname xmlns:x="PortletSpec3_15_Events">x:AnnotatedEvent</qname>
 		<value-type>java.lang.String</value-type>
 	</event-definition>
-	<event-definition>
-		<qname xmlns:x="http://liferay.com/events">x:EVENT-TO-COMPANION</qname>
-		<value-type>java.lang.String</value-type>
-	</event-definition>
-	<event-definition>
-		<qname xmlns:x="http://liferay.com/events">x:ECHOED-EVENT</qname>
-		<value-type>java.lang.String</value-type>
-	</event-definition>
-	<public-render-parameter>
-		<identifier>publicRenderParameter1</identifier>
-		<qname xmlns:x="http://liferay.com/pub-render-params">x:publicRenderParameter1</qname>
-	</public-render-parameter>
 </portlet-app>
