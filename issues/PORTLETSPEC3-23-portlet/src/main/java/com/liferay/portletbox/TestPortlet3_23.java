@@ -68,54 +68,102 @@ import com.liferay.portletbox.issuesutil.TableWriter;
 @SuppressWarnings("unused")
 public class TestPortlet3_23 extends GenericPortlet {
 
+   private final String ACTION_TEST             = "ActionTest";
+   private final String RENDER_TEST             = "RenderTest";
+   
+   protected enum ThrowType {NONE, PORTLET, IO, RUNTIME, NOOP}
+
    protected final static String ACTION_NAME   = "TestPortlet3_23-Action";
    protected final static String EVENT_NAME    = "AnnotatedEvent";
    protected final static String RENDER_NAME   = "view";
    
    public final String RENDER_PARM_NAME        = "RenderParameter";
-   
-   private final String PORTLET_SUFFIX         = "Able";
 
+   @SuppressWarnings("incomplete-switch")
    @ProcessAction(name=ACTION_NAME)
    public void ActionAble(ActionRequest actionRequest, ActionResponse actionResponse) 
          throws PortletException, IOException {
-      actionResponse.setRenderParameter( RENDER_PARM_NAME, "Render Parameter set by Action" + PORTLET_SUFFIX);
+
+      // Get test to be performed
+
+      String actionTest = actionRequest.getParameter(ACTION_TEST);
+      ThrowType tt = ThrowType.NONE;
+
+      if (actionTest != null) {
+
+         try {
+            tt = ThrowType.valueOf(actionTest);
+         }
+         catch (Exception e) {
+         }
+      }
+      
+      // actionResponse.setRenderParameter( RENDER_PARM_NAME, "Action " + tt.toString() + " will be performed." );
+      actionRequest.getPortletSession().setAttribute(RENDER_PARM_NAME, "Action " + tt.toString() + " will be performed." );
+      
+      switch(tt) {
+         case PORTLET: 
+            throw new PortletException("PortletException thrown from action method");
+         case IO: 
+            throw new IOException("IOException thrown from action method");
+         case RUNTIME: 
+            throw new RuntimeException("RuntimeException thrown from action method");
+      }
    }
    
+   @SuppressWarnings("incomplete-switch")
    @ProcessEvent(name=EVENT_NAME)
    public void EventAble(EventRequest eventRequest, EventResponse eventResponse) 
          throws PortletException, IOException {
-      eventResponse.setRenderParameter( RENDER_PARM_NAME, "Render Parameter set by Event"  + PORTLET_SUFFIX);
+      // Get test to be performed
+
+      String eventName = eventRequest.getEvent().getName();
+      String eventTest = (String)eventRequest.getEvent().getValue();
+      ThrowType tt = ThrowType.NONE;
+
+      if (eventTest != null) {
+
+         try {
+            tt = ThrowType.valueOf(eventTest);
+         }
+         catch (Exception e) {
+         }
+      }
+
+      eventRequest.getPortletSession().setAttribute(RENDER_PARM_NAME, "EventName=" + eventName
+      // eventResponse.setRenderParameter( RENDER_PARM_NAME, "EventName=" + eventName 
+            + ". Exception " + tt.toString() + " will be thrown." );
+      
+      switch(tt) {
+         case PORTLET: 
+            throw new PortletException("PortletException thrown from event method");
+         case IO: 
+            throw new IOException("IOException thrown from event method");
+         case RUNTIME: 
+            throw new RuntimeException("RuntimeException thrown from event method");
+      }
    }
    
+   @SuppressWarnings("incomplete-switch")
    @RenderMode(name=RENDER_NAME)
    public void RenderAble(RenderRequest renderRequest, RenderResponse renderResponse) 
          throws PortletException, IOException {
-      writePortletText(PORTLET_SUFFIX, renderRequest, renderResponse);
-   }
-   
-   // common render method used by all subclasses.   
-   protected void writePortletText(String suffix, RenderRequest renderRequest, 
-         RenderResponse renderResponse) throws IOException {
 
       PrintWriter writer = renderResponse.getWriter();
       
-      writer.write("Rendered by Render"  + suffix + " ... (Should be Render3_23)<br/>");
-      writer.write("<ul>");
-      writer.write("<li>TestPortlet3_23_Able extends GenericPortlet</li>");
-      writer.write("<li>TestPortlet3_23_Baker extends TestPortlet3_23_Able</li>");
-      writer.write("<li>TestPortlet3_23_Charlie extends TestPortlet3_23_Baker</li>");
-      writer.write("<li>TestPortlet3_23 extends TestPortlet3_23_Charlie</li>");
-      writer.write("</ul>");
+      writer.write("This portlet implements annotated render, action, and event methods.");
+      writer.write("Exceptions are thrown according to the buttons clicked. <br/>");
       writer.write(HTMLUtil.HR_TAG);
-
 
       // If available, write out messages from action request -
 
-      writer.write("Parameter from Action or Event Phase: <br/> ... (Should be set by (none), EventBaker or ActionCharlie)<br/>");
-      String parmText = (String) renderRequest.getParameter(RENDER_PARM_NAME);
+      writer.write("Parameter from Action or Event Phase: <br/>");
+      
+      String parmText = (String) renderRequest.getPortletSession().getAttribute(RENDER_PARM_NAME);
+      //String parmText = (String) renderRequest.getParameter(RENDER_PARM_NAME);
       if (parmText != null) {
          writer.write(parmText);
+         renderRequest.getPortletSession().removeAttribute(RENDER_PARM_NAME);
       } else {
          writer.write("(none)");
       }
@@ -126,28 +174,127 @@ public class TestPortlet3_23 extends GenericPortlet {
       TableWriter tw = new TableWriter(writer, 2);
       tw.startTable();
 
-      // Create render URL w/o parameters -
-
+      // render w/o parameters
+      
       {
-         String testName = "RenderURL";      
+         String testName = "Render, no parameters";
          PortletURL renderURL = renderResponse.createRenderURL();
          tw.writeURL(testName,  renderURL.toString() );
       }
 
-      // Create action URL, set public & private render parameters
-
+      // throw no exception  in action method
+      
       {
-         String testName = "Do action";      
-         PortletURL actionURL = null;
-         try {actionURL = renderResponse.createActionURL();}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"createActionURL() failed.<br/>" + e.toString() + "<br/>"); actionURL=null;}
-         if (actionURL != null) {
-            actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23_Able.ACTION_NAME);
-            tw.writeButton(testName,  actionURL.toString() );
-         }
+         String testName = "No exception in Action";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.NONE.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+
+      // throw PortletException in action method
+      
+      {
+         String testName = "PortletException in Action";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.PORTLET.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+
+      // throw IO in action method
+      
+      {
+         String testName = "IOException in Action";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.IO.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+
+      // throw Runtime in action method
+      
+      {
+         String testName = "RuntimeException in Action";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.RUNTIME.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+
+      // throw other exception in action method
+      
+      {
+         String testName = "Other Exception in Action";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.NOOP.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+
+      // throw PortletException in render method
+      
+      {
+         String testName = "PortletException in Render";
+         PortletURL renderURL = renderResponse.createRenderURL();
+         renderURL.setParameter(RENDER_TEST, ThrowType.PORTLET.toString());
+         tw.writeURL(testName,  renderURL.toString() );
+      }
+
+      // throw IO in render method
+      
+      {
+         String testName = "IOException in Render";
+         PortletURL renderURL = renderResponse.createRenderURL();
+         renderURL.setParameter(RENDER_TEST, ThrowType.IO.toString());
+         tw.writeURL(testName,  renderURL.toString() );
+      }
+
+      // throw Runtime in render method
+      
+      {
+         String testName = "RuntimeException in Render";
+         PortletURL renderURL = renderResponse.createRenderURL();
+         renderURL.setParameter(RENDER_TEST, ThrowType.RUNTIME.toString());
+         tw.writeURL(testName,  renderURL.toString() );
+      }
+
+      // throw other exception in render method
+      
+      {
+         String testName = "Other Exception in Render";
+         PortletURL renderURL = renderResponse.createRenderURL();
+         renderURL.setParameter(RENDER_TEST, ThrowType.NOOP.toString());
+         tw.writeURL(testName,  renderURL.toString() );
       }
       
       tw.endTable();
+      
+      // Now handling throwing event during render phase
+      
+      ThrowType tt = ThrowType.NONE;
+      String renderParm = (String) renderRequest.getParameter(RENDER_TEST);
+      if (renderParm != null) {
+
+         try {
+            tt = ThrowType.valueOf(renderParm);
+         }
+         catch (Exception e) {
+         }
+
+         writer.write("Render request: throwing exception of type: " + tt.toString() + "<br/>");
+         writer.write(HTMLUtil.HR_TAG);
+
+         switch(tt) {
+            case PORTLET: 
+               throw new PortletException("PortletException thrown from render method");
+            case IO: 
+               throw new IOException("IOException thrown from render method");
+            case RUNTIME: 
+               throw new RuntimeException("RuntimeException thrown from render method");
+         }
+      }
+
    }
 
 

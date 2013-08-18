@@ -54,6 +54,7 @@ import javax.portlet.EventRequest;
 import javax.portlet.EventResponse;
 import javax.xml.namespace.QName;
 
+import com.liferay.portletbox.TestPortlet3_23.ThrowType;
 import com.liferay.portletbox.issuesutil.HTMLUtil;
 import com.liferay.portletbox.issuesutil.TableWriter;
 
@@ -64,17 +65,33 @@ import com.liferay.portletbox.issuesutil.TableWriter;
 @SuppressWarnings("unused")
 public class TestPortlet3_23_Companion extends GenericPortlet {
 
+   private final String ACTION_TEST             = "ActionTest";
+
    @Override
    public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException,
    IOException {
 
+      // Get test to be performed
+
+      String actionTest = actionRequest.getParameter(ACTION_TEST);
+      TestPortlet3_23.ThrowType tt = TestPortlet3_23.ThrowType.NONE;
+
+      if (actionTest != null) {
+
+         try {
+            tt = TestPortlet3_23.ThrowType.valueOf(actionTest);
+         }
+         catch (Exception e) {
+         }
+      }
+
       StringWriter writer = new StringWriter();
-      writer.write("Event was sent.");
+      writer.write("Event was sent. ThrowType = " + tt.toString());
       String writtenStuff = writer.toString();
       actionRequest.getPortletSession().setAttribute("ActionString", writtenStuff);
       
       QName eventQName = new QName(getDefaultNamespace(), TestPortlet3_23.EVENT_NAME);
-      actionResponse.setEvent(eventQName, "Sent by companion");
+      actionResponse.setEvent(eventQName, tt.toString());
 
    }
 
@@ -101,17 +118,55 @@ public class TestPortlet3_23_Companion extends GenericPortlet {
       TableWriter tw = new TableWriter(writer, 2);
       tw.startTable();
 
-      // Create action URL, set public & private render parameters
 
+      // throw no exception  in action method
+      
       {
-         String testName = "Send Event";      
-         PortletURL actionURL = null;
-         try {actionURL = renderResponse.createActionURL();}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"createActionURL() failed.<br/>" + e.toString() + "<br/>"); actionURL=null;}
+         String testName = "No exception in Event";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.NONE.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
 
-         if (actionURL != null) {
-            tw.writeButton(testName,  actionURL.toString() );
-         }
+      // throw PortletException in action method
+      
+      {
+         String testName = "PortletException in Event";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.PORTLET.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+
+      // throw IO in action method
+      
+      {
+         String testName = "IOException in Event";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.IO.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+
+      // throw Runtime in action method
+      
+      {
+         String testName = "RuntimeException in Event";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.RUNTIME.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
+      }
+
+      // throw other exception in action method
+      
+      {
+         String testName = "Other Exception in Event";
+         PortletURL actionURL = renderResponse.createActionURL();
+         actionURL.setParameter(ACTION_TEST, ThrowType.NOOP.toString());
+         actionURL.setParameter(ActionRequest.ACTION_NAME, TestPortlet3_23.ACTION_NAME);
+         tw.writeButton(testName,  actionURL.toString() );
       }
 
       tw.endTable();
