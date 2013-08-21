@@ -34,10 +34,11 @@ package com.liferay.portletbox;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
-import java.util.Locale;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
@@ -45,11 +46,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import javax.portlet.ResourceURL;
-import javax.portlet.PortletMode;
-import javax.portlet.WindowState;
 
 import com.liferay.portletbox.issuesutil.HTMLUtil;
 import com.liferay.portletbox.issuesutil.TableWriter;
@@ -60,181 +57,134 @@ import com.liferay.portletbox.issuesutil.TableWriter;
  */
 public class BufferTest extends GenericPortlet {
    
-   private final String RES_TEST = "ResourceTest";
-   private enum ResourceTest {NONE, BEFORE_GET, AFTER_GET, AFTER_FLUSH,
-      AFTER_PARTIAL_WRITING,AFTER_COMPLETE_WRITING} 
-
-   @Override
-   public void serveResource(ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-         throws PortletException, IOException {
-
-      // Get test to be performed
-
-      String test = resourceRequest.getParameter(RES_TEST);
-      ResourceTest rt = ResourceTest.NONE;
-
-      if (test != null) {
-         try {
-            rt = ResourceTest.valueOf(test);
-         }
-         catch (Exception e) {
-         }
-      }
-
-      resourceResponse.setContentType("text/html");
-
-      // Set header information depending on test type -
-      if (rt == ResourceTest.BEFORE_GET) {
-         resourceResponse.setContentType("text/plain");
-         resourceResponse.setProperty(ResourceResponse.HTTP_STATUS_CODE, "220");
-         resourceResponse.setLocale(new Locale("EN", "NZ", "P26"));
-         resourceResponse.setContentLength(1000);
-      }
-
-      PrintWriter writer = resourceResponse.getWriter();
-
-      // Set header information depending on test type -
-      if (rt == ResourceTest.AFTER_GET) {
-         resourceResponse.setContentType("text/plain");
-         resourceResponse.setProperty(ResourceResponse.HTTP_STATUS_CODE, "230");
-         resourceResponse.setLocale(new Locale("EN", "AU", "P27"));
-         resourceResponse.setContentLength(2000);
-      }
-
-      // Set header information depending on test type -
-      if (rt == ResourceTest.AFTER_FLUSH) {
-         resourceResponse.flushBuffer();
-         resourceResponse.setContentType("text/plain");
-         resourceResponse.setProperty(ResourceResponse.HTTP_STATUS_CODE, "235");
-         resourceResponse.setLocale(new Locale("EN", "AU", "P27"));
-         resourceResponse.setContentLength(2000);
-      }
-
-      writer.write("<html><body>");
-
-      writer.write(HTMLUtil.HR_TAG);
-      HTMLUtil.writeMapCompact(writer, PortletRequest.RESOURCE_PHASE, "publicParameterMap",
-            resourceRequest.getPublicParameterMap());
-      writer.write(HTMLUtil.HR_TAG);
-      HTMLUtil.writeMapCompact(writer, PortletRequest.RESOURCE_PHASE, "privateParameterMap",
-            resourceRequest.getPrivateParameterMap());
-      writer.write(HTMLUtil.HR_TAG);
-      HTMLUtil.writeMapCompact(writer, PortletRequest.RESOURCE_PHASE, "parameterMap",
-            resourceRequest.getParameterMap());
-      writer.write(HTMLUtil.HR_TAG);
-      HTMLUtil.writeParameters(writer, PortletRequest.RESOURCE_PHASE, resourceRequest);
-      writer.write(HTMLUtil.HR_TAG);
-
-      // Set header information depending on test type -
-      if (rt == ResourceTest.AFTER_PARTIAL_WRITING) {
-         resourceResponse.setContentType("text/plain");
-         resourceResponse.setProperty(ResourceResponse.HTTP_STATUS_CODE, "240");
-         resourceResponse.setLocale(new Locale("EN", "CA", "P27a"));
-         resourceResponse.setContentLength(3000);
-      }
-      
-      // display the cacheability, portlet mode and window state -
-
-      WindowState ws = resourceRequest.getWindowState();
-      String text = "WindowState: " + ((null==ws) ? ("(null)") : (ws.toString())) + "<br/>";
-      writer.write(text);
-      
-      PortletMode pm = resourceRequest.getPortletMode();
-      text = "PortletMode: " + ((null==pm) ? ("(null)") : (pm.toString())) + "<br/>";
-      writer.write(text);
-      
-      writer.write("Cacheability: " + resourceRequest.getCacheability() + "<br/>");
-      writer.write(HTMLUtil.HR_TAG);
-
-      writer.write("<span>");
-
-      // Create resource URL with no further processing -
-
-      TableWriter tw = new TableWriter(writer);
-      tw.startTable();
-
-
-      // Resource URL with no further processing -
-
-      {
-         String testName = "ResourceURL, no add'l parameters";      
-         ResourceURL resourceURL = resourceResponse.createResourceURL();
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Resource URL with resource parameters -
-
-      {
-         String testName = "ResourceURL w/ resource parameters";     
-         ResourceURL resourceURL = resourceResponse.createResourceURL();
-         resourceURL.setParameter("publicRenderParameter1", "BufferTest: 400");
-         resourceURL.setParameter("ResourceParameter2", "BufferTest: 500");
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Create resource URL, setting parameter, cacheability=FULL -
-
-      {
-         String      testName = "ResourceURL, cacheability FULL";      
-         ResourceURL resourceURL = resourceResponse.createResourceURL();
-         try {resourceURL.setCacheability(ResourceURL.FULL);}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
-         resourceURL.setParameter("resourceURLParameter3", "BufferTest: 550");
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Create resource URL, setting parameter, cacheability=PORTLET -
-
-      {
-         String      testName = "ResourceURL, cacheability PORTLET";      
-         ResourceURL resourceURL = resourceResponse.createResourceURL();
-         try {resourceURL.setCacheability(ResourceURL.PORTLET);}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
-         resourceURL.setParameter("resourceURLParameter3", "BufferTest: 660");
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Create resource URL, setting parameter, cacheability=PAGE -
-
-      {
-         String      testName = "ResourceURL, cacheability PAGE";      
-         ResourceURL resourceURL = resourceResponse.createResourceURL();
-         try {resourceURL.setCacheability(ResourceURL.PAGE);}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
-         resourceURL.setParameter("resourceURLParameter3", "BufferTest: 770");
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      tw.endTable();
-
-      writer.write("</span>");
-      writer.write("</body></html>");
-
-      // Set header information depending on test type -
-      if (rt == ResourceTest.AFTER_COMPLETE_WRITING) {
-         resourceResponse.setContentType("text/plain");
-         resourceResponse.setProperty(ResourceResponse.HTTP_STATUS_CODE, "250");
-         resourceResponse.setLocale(new Locale("EN", "GB", "P27b"));
-         resourceResponse.setContentLength(4000);
-      }
-   }
+   // use public render parameter so that it cen be reset from another portlet
+   // if rendering gets screwed up.
+   private final String RENDER_PARM = "RenderParm";
+   private enum RenderTest {NONE, BEFORE_GET, AFTER_GET, WRITE_RESET} 
 
    @Override
    protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException,
    IOException {
 
+      // Get test to be performed
+
+      String test = renderRequest.getParameter(RENDER_PARM);
+      RenderTest rt = RenderTest.NONE;
+
+      if (test != null) {
+         try {rt = RenderTest.valueOf(test);}
+         catch (Exception e) {}
+      }
+
+      // for things that occur before we have a PrintWriter
+      StringWriter earlyWriter = new StringWriter();
+      
+      // collect infos about buffer -
+      earlyWriter.write("Buffer size: " + renderResponse.getBufferSize() + "<br/>");
+      earlyWriter.write("Character encoding: " + renderResponse.getCharacterEncoding() + "<br/>");
+      earlyWriter.write("Content Type: " + renderResponse.getContentType() + "<br/>");
+      earlyWriter.write("is committed: " + renderResponse.isCommitted() + "<br/>");
+      earlyWriter.write("Locale: " + renderResponse.getLocale() + "<br/>");
+      
+      renderResponse.setContentType("text/html");
+
+      // Set header information depending on test type -
+      if (rt == RenderTest.BEFORE_GET) {
+         try {renderResponse.setContentType("text/plain");}
+         catch (Exception e) {
+            earlyWriter.write("<br/>Exception at setContentType(\"text/plain\"):<br/>");
+            earlyWriter.write(e.getClass().getName() + ": " + e.getMessage() + "<br/>");
+         }
+         try {renderResponse.setBufferSize(2000);}
+         catch (Exception e) {
+            earlyWriter.write("<br/>Exception at setBufferSize(2000):<br/>");
+            earlyWriter.write(e.getClass().getName() + ": " + e.getMessage() + "<br/>");
+         }
+         try {renderResponse.setProperty(ResourceResponse.HTTP_STATUS_CODE, "220");}
+         catch (Exception e) {
+            earlyWriter.write("<br/>Exception at setProperty(ResourceResponse.HTTP_STATUS_CODE, \"220\"):<br/>");
+            earlyWriter.write(e.getClass().getName() + ": " + e.getMessage() + "<br/>");
+         }
+         try {renderResponse.resetBuffer();}
+         catch (Exception e) {
+            earlyWriter.write("<br/>Exception at resetBuffer():<br/>");
+            earlyWriter.write(e.getClass().getName() + ": " + e.getMessage() + "<br/>");
+         }
+      }
+
       PrintWriter writer = renderResponse.getWriter();
-      writer.write("This portlet provides tests for issues BufferTest and PORTLETSPEC3-27.<br/>");
+
+      // Set header information depending on test type -
+      if (rt == RenderTest.AFTER_GET) {
+         earlyWriter.write("<br/>After getWriter but before writing:<br/>");
+         try {renderResponse.setContentType("text/plain");}
+         catch (Exception e) {
+            earlyWriter.write("<br/>Exception at setContentType(\"text/plain\"):<br/>");
+            earlyWriter.write(e.getClass().getName() + ": " + e.getMessage() + "<br/>");
+         }
+         try {renderResponse.setBufferSize(2000);}
+         catch (Exception e) {
+            earlyWriter.write("<br/>Exception at setBufferSize(2000):<br/>");
+            earlyWriter.write(e.getClass().getName() + ": " + e.getMessage() + "<br/>");
+         }
+         try {renderResponse.setProperty(ResourceResponse.HTTP_STATUS_CODE, "230");}
+         catch (Exception e) {
+            earlyWriter.write("<br/>Exception at setProperty(ResourceResponse.HTTP_STATUS_CODE, \"220\"):<br/>");
+            earlyWriter.write(e.getClass().getName() + ": " + e.getMessage() + "<br/>");
+         }
+         try {renderResponse.resetBuffer();}
+         catch (Exception e) {
+            earlyWriter.write("<br/>Exception at resetBuffer():<br/>");
+            earlyWriter.write(e.getClass().getName() + ": " + e.getMessage() + "<br/>");
+         }
+      }
+
+      // Set header information depending on test type -
+      if (rt == RenderTest.WRITE_RESET) {
+         writer.write("Test line before attempting to reset the buffer.<br/>");
+         try {renderResponse.resetBuffer();}
+         catch (Exception e) {
+            writer.write("<br/>Exception at resetBuffer():<br/>");
+            writer.write(e.getClass().getName() + ": " + e.getMessage() + "<br/><br/>");
+         }
+         writer.write("Test line after attempting to reset the buffer.<br/>");
+      }
+
+      writer.write(HTMLUtil.HR_TAG);
+      writer.write("This portlet provides tests for buffer use.<br/><br/>");
 
       // Display current parameters -
 
+      HTMLUtil.writeMapCompact(writer, PortletRequest.RENDER_PHASE, "parameterMap",
+            renderRequest.getParameterMap());
       writer.write(HTMLUtil.HR_TAG);
-      HTMLUtil.writeMapCompact(writer, PortletRequest.RENDER_PHASE, "publicParameterMap",
-            renderRequest.getPublicParameterMap());
+      
+      writer.write("Early Info (before getWriter called):<br/>");
+      writer.write(earlyWriter.toString());
       writer.write(HTMLUtil.HR_TAG);
-      HTMLUtil.writeMapCompact(writer, PortletRequest.RENDER_PHASE, "privateParameterMap",
-            renderRequest.getPrivateParameterMap());
-
+      
+      // collect infos about buffer -
+      writer.write("Late Info (after test has been carried out):<br/>");
+      writer.write("Buffer size: " + renderResponse.getBufferSize() + "<br/>");
+      writer.write("Character encoding: " + renderResponse.getCharacterEncoding() + "<br/>");
+      writer.write("Content Type: " + renderResponse.getContentType() + "<br/>");
+      writer.write("is committed: " + renderResponse.isCommitted() + "<br/>");
+      writer.write("Locale: " + renderResponse.getLocale() + "<br/>");
+      writer.write(HTMLUtil.HR_TAG);
+      
+      // collect infos about buffer -
+      writer.write("Request properties:<br/>");
+      Enumeration<String> props = renderRequest.getPropertyNames();
+      while (props.hasMoreElements()) {
+         String prop = props.nextElement();
+         Enumeration<String> vals = renderRequest.getProperties(prop);
+         while (vals.hasMoreElements()) {
+            String val = vals.nextElement();
+            String v2 = val.substring(0, ((40<val.length()) ? 40 : val.length()));
+            if (val.length() > 40) v2 += "...";
+            writer.write("Prop: " + prop + ", val: " + v2 + "<br/>");
+         }
+      }
       writer.write(HTMLUtil.HR_TAG);
 
       // Create URLs for tests -
@@ -264,100 +214,31 @@ public class BufferTest extends GenericPortlet {
          tw.writeURL(testName,  renderURL.toString() );
       }
 
-      // Resource URL with no further processing -
+      // Render URL, set buffer before getWriter -
 
       {
-         String testName = "ResourceURL, no add'l parameters";      
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         tw.writeURL(testName,  resourceURL.toString() );
+         String testName = "set buffer before getWriter";     
+         PortletURL renderURL = renderResponse.createRenderURL();
+         renderURL.setParameter(RENDER_PARM, RenderTest.BEFORE_GET.toString());
+         tw.writeURL(testName,  renderURL.toString() );
       }
 
-      // Resource URL with resource parameters -
+      // Render URL, set buffer after getWriter -
 
       {
-         String testName = "ResourceURL w/ resource parameters";		
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         resourceURL.setParameter("publicRenderParameter1", "BufferTest: 40");
-         resourceURL.setParameter("ResourceParameter2", "BufferTest: 50");
-         tw.writeURL(testName,  resourceURL.toString() );
+         String testName = "set buffer after getWriter";     
+         PortletURL renderURL = renderResponse.createRenderURL();
+         renderURL.setParameter(RENDER_PARM, RenderTest.AFTER_GET.toString());
+         tw.writeURL(testName,  renderURL.toString() );
       }
 
-      // Create resource URL, setting parameter, cacheability=FULL -
+      // Render URL, write to stream, then reset buffer -
 
       {
-         String      testName = "ResourceURL, cacheability FULL";      
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         try {resourceURL.setCacheability(ResourceURL.FULL);}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
-         resourceURL.setParameter("resourceURLParameter3", "BufferTest: 55");
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Create resource URL, setting parameter, cacheability=PORTLET -
-
-      {
-         String      testName = "ResourceURL, cacheability PORTLET";      
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         try {resourceURL.setCacheability(ResourceURL.PORTLET);}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
-         resourceURL.setParameter("resourceURLParameter3", "BufferTest: 66");
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Create resource URL, setting parameter, cacheability=PAGE -
-
-      {
-         String      testName = "ResourceURL, cacheability PAGE";      
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         try {resourceURL.setCacheability(ResourceURL.PAGE);}
-         catch(Exception e) {writer.write("In test: "+testName+":<br/>"+"setCacheability() failed.<br/>" + e.toString() + "<br/>");}
-         resourceURL.setParameter("resourceURLParameter3", "BufferTest: 77");
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Resource URL, write headers before getWriter -
-
-      {
-         String testName = "Write headers before getWriter";     
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         resourceURL.setParameter(RES_TEST, ResourceTest.BEFORE_GET.toString());
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Resource URL, write headers after getWriter -
-
-      {
-         String testName = "Write headers after getWriter";     
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         resourceURL.setParameter(RES_TEST, ResourceTest.AFTER_GET.toString());
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Resource URL, write headers after flushBuffer -
-
-      {
-         String testName = "Write headers after flushBuffer";     
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         resourceURL.setParameter(RES_TEST, ResourceTest.AFTER_FLUSH.toString());
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Resource URL, write headers after partial write -
-
-      {
-         String testName = "Write headers after partial write";     
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         resourceURL.setParameter(RES_TEST, ResourceTest.AFTER_PARTIAL_WRITING.toString());
-         tw.writeURL(testName,  resourceURL.toString() );
-      }
-
-      // Resource URL, write headers after complete output is written -
-
-      {
-         String testName = "Write headers after complete write";     
-         ResourceURL resourceURL = renderResponse.createResourceURL();
-         resourceURL.setParameter(RES_TEST, ResourceTest.AFTER_COMPLETE_WRITING.toString());
-         tw.writeURL(testName,  resourceURL.toString() );
+         String testName = "write, then reset buffer";     
+         PortletURL renderURL = renderResponse.createRenderURL();
+         renderURL.setParameter(RENDER_PARM, RenderTest.WRITE_RESET.toString());
+         tw.writeURL(testName,  renderURL.toString() );
       }
 
 
