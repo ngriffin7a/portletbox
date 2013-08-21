@@ -55,7 +55,7 @@ import com.liferay.portletbox.issuesutil.TableWriter;
 /**
  * @author  Scott Nicklous
  */
-public class BufferTest extends GenericPortlet {
+public class TestPortlet3_35 extends GenericPortlet {
    
    // use public render parameter so that it cen be reset from another portlet
    // if rendering gets screwed up.
@@ -209,8 +209,8 @@ public class BufferTest extends GenericPortlet {
       {
          String testName = "Set render parameters";      
          PortletURL renderURL = renderResponse.createRenderURL();
-         renderURL.setParameter("publicRenderParameter1", "BufferTest: 200");
-         renderURL.setParameter("privateRenderParameter1", "BufferTest: 100");
+         renderURL.setParameter("publicRenderParameter1", "TestPortlet3_35: 200");
+         renderURL.setParameter("privateRenderParameter1", "TestPortlet3_35: 100");
          tw.writeURL(testName,  renderURL.toString() );
       }
 

@@ -3,7 +3,7 @@
 
 <liferay-portlet-app>
 	<portlet>
-		<portlet-name>BufferTest</portlet-name>
+		<portlet-name>PORTLETSPEC3-35</portlet-name>
 		<instanceable>false</instanceable>
 		<ajaxable>false</ajaxable>
 	</portlet>

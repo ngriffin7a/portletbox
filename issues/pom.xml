@@ -25,6 +25,7 @@
 		<module>PORTLETSPEC3-23-portlet</module>
 		<module>PORTLETSPEC3-26-portlet</module>
 		<module>PORTLETSPEC3-32-portlet</module>
+		<module>PORTLETSPEC3-35-portlet</module>
 	</modules>
 	<profiles>
 		<profile>

@@ -2,17 +2,17 @@
 
 <portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd" version="2.0">
 	<portlet>
-		<portlet-name>BufferTest</portlet-name>
-		<display-name>BufferTest</display-name>
-		<portlet-class>com.liferay.portletbox.BufferTest</portlet-class>
+		<portlet-name>PORTLETSPEC3-35</portlet-name>
+		<display-name>PORTLETSPEC3-35</display-name>
+		<portlet-class>com.liferay.portletbox.TestPortlet3_35</portlet-class>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
 		</supports>
 		<portlet-info>
-			<title>BufferTest</title>
-			<short-title>BufferTest</short-title>
-			<keywords>BufferTest</keywords>
+			<title>PORTLETSPEC3-35</title>
+			<short-title>PORTLETSPEC3-35</short-title>
+			<keywords>PORTLETSPEC3-35</keywords>
 		</portlet-info>
 		<security-role-ref>
 			<role-name>administrator</role-name>
