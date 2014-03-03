@@ -38,10 +38,12 @@
 
 	<modules>
 		<module>gatein-pc</module>
+		<module>demos</module>
 		<module>issues</module>
 	</modules>
 
 	<properties>
+		<cdi.version>1.0-SP4</cdi.version>
 		<!-- Liferay+Tomcat -->
 		<liferay.version>6.1.1</liferay.version>
 		<liferay.tomcat.version>7.0.27</liferay.tomcat.version>
@@ -58,6 +60,7 @@
 		<pluto.home>${env.PORTLETBOX_HOME}/${pluto.portal}</pluto.home>
 		<pluto.tomcat.dir>${pluto.home}/tomcat-${pluto.tomcat.version}</pluto.tomcat.dir>
 		<pluto.deploy.dir>${pluto.tomcat.dir}/webapps</pluto.deploy.dir>
+		<weld.version>1.1.10.Final</weld.version>
 	</properties>
 
 	<build>
@@ -139,7 +142,7 @@
 						<artifactId>maven-antrun-plugin</artifactId>
 						<executions>
 							<execution>
-								<phase>generate-resources</phase>
+								<phase>validate</phase>
 								<goals>
 									<goal>run</goal>
 								</goals>
@@ -230,10 +233,61 @@
 				</plugins>
 			</build>
 		</profile>
+		<!-- | This profile executes the embedded GateIn PC with the tomcat-maven-plugin. 
+			| | Usage: in a portlet directory run "mvn -Pgatein integration-test | point 
+			your browser to localhost:8080/portal -->
+		<profile>
+			<id>gatein-pc</id>
+			<dependencies>
+				<dependency>
+					<groupId>com.liferay.portletbox</groupId>
+					<artifactId>gatein-pc</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<version>2.1</version>
+						<dependencies>
+							<!-- Simulates portlet jar loaded in server classloader -->
+							<dependency>
+								<groupId>javax.portlet</groupId>
+								<artifactId>portlet-api</artifactId>
+								<version>2.0</version>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<goals>
+									<goal>run-war-only</goal>
+								</goals>
+								<phase>integration-test</phase>
+								<configuration>
+									<path>/portal</path>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.liferay.cdi</groupId>
+				<artifactId>cdi-portlet-bridge-shared</artifactId>
+				<version>6.2.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.liferay.faces</groupId>
+				<artifactId>liferay-faces-cdi-compat</artifactId>
+				<version>3.2.4-ga5</version>
+			</dependency>
 			<dependency>
 				<groupId>com.liferay.portal</groupId>
 				<artifactId>portal-service</artifactId>
@@ -246,9 +300,26 @@
 				<version>1.1.1</version>
 			</dependency>
 			<dependency>
+				<groupId>javax.enterprise</groupId>
+				<artifactId>cdi-api</artifactId>
+				<version>${cdi.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.inject</groupId>
+				<artifactId>javax.inject</artifactId>
+				<version>1</version>
+			</dependency>
+			<dependency>
 				<groupId>javax.portlet</groupId>
 				<artifactId>portlet-api</artifactId>
 				<version>2.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>3.0.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -256,6 +327,11 @@
 				<artifactId>junit</artifactId>
 				<version>4.10</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.weld.servlet</groupId>
+				<artifactId>weld-servlet</artifactId>
+				<version>${weld.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
